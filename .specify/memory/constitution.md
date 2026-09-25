@@ -1,9 +1,9 @@
 # ubi10-httpd-perl-mariadb Constitution
 
-> **Version:** 1.0.0
+> **Version:** 1.0.1
 > **Ratified:** 2026-03-10
 > **Status:** Active
-> **Inherits:** [crunchtools/constitution](https://github.com/crunchtools/constitution) v1.0.0
+> **Inherits:** [crunchtools/constitution](https://github.com/crunchtools/constitution) v1.17.0
 > **Profile:** Container Image
 
 UBI 10 Perl + MariaDB leaf image. Inherits Apache httpd, mod_fcgid, and Perl from ubi10-httpd-perl. Adds MariaDB server for Request Tracker. Requires RHSM for mariadb-server package.
