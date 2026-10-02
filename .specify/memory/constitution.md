@@ -1,66 +1,54 @@
 # ubi10-httpd-perl-mariadb Constitution
 
-> **Version:** 1.0.1
+> **Version:** 1.1.0
 > **Ratified:** 2026-03-10
+> **Amended:** 2026-10-02
 > **Status:** Active
-> **Inherits:** [crunchtools/constitution](https://github.com/crunchtools/constitution) v1.17.0
+> **Inherits:** [crunchtools/constitution](https://github.com/crunchtools/constitution) v1.18.0
 > **Profile:** Container Image
 
-UBI 10 Perl + MariaDB leaf image. Inherits Apache httpd, mod_fcgid, and Perl from ubi10-httpd-perl. Adds MariaDB server for Request Tracker. Requires RHSM for mariadb-server package.
+This file holds what is specific to ubi10-httpd-perl-mariadb. The fleet rules and the Container
+Image profile (license, versioning, LABELs, the RHSM secret-mount pattern,
+systemd conventions, registry, testing and quality gates) apply at the
+inherited version and are checked against this repo's files by
+`constitution.yml`. They are not restated here.
 
----
+## Purpose
 
-## License
+UBI 10 Perl + MariaDB leaf image for Request Tracker. Published as
+`quay.io/crunchtools/ubi10-httpd-perl-mariadb`.
 
-AGPL-3.0-or-later
+## Parent Image
 
-## Versioning
+`quay.io/crunchtools/ubi10-httpd-perl:latest`. It inherits httpd, mod_fcgid,
+Perl and everything ubi10-core provides.
 
-Follow Semantic Versioning 2.0.0. MAJOR/MINOR/PATCH.
+## RHSM Use
 
-## Base Image
+`mariadb-server` is not in the UBI repos, so this image registers with RHSM
+at build time. Register, install and unregister run in one `RUN` layer, with
+the secrets mounted as `RHSM_ACTIVATION_KEY` and `RHSM_ORG_ID`.
 
-`quay.io/crunchtools/ubi10-httpd-perl:latest` — inherits httpd, mod_fcgid, Perl, troubleshooting tools, and systemd hardening.
+## Packages and Services
 
-## Registry
+- **Packages:** mariadb-server, mariadb.
+- **Enabled:** mariadb (httpd comes enabled from the parent).
 
-Published to `quay.io/crunchtools/ubi10-httpd-perl-mariadb`.
+## Smoke Test Coverage
 
-## RHSM Registration
-
-Required. `mariadb-server` is not available in UBI repos. Uses `--mount=type=secret` for subscription-manager registration. Register, install, and unregister happen in a single `RUN` layer so secrets are never cached in intermediate layers.
-
-## Containerfile Conventions
-
-- Uses `Containerfile` (not Dockerfile)
-- Required LABELs: `maintainer`, `description`
-- `dnf install -y` followed by `dnf clean all`
-- `subscription-manager unregister` after package installation
-- systemd services enabled: mariadb
-- Inherits from parent chain: httpd (enabled), systemd-remount-fs/systemd-update-done/systemd-udev-trigger (masked)
-- Inherits `STOPSIGNAL SIGRTMIN+3` and `ENTRYPOINT ["/sbin/init"]` from ubi10-core
-
-## Packages Installed
-
-mariadb-server, mariadb
-
-Inherited from ubi10-httpd-perl: mod_fcgid, perl
-Inherited from ubi10-httpd: httpd
-Inherited from ubi10-core: iputils, bind-utils, net-tools, less, cronie, procps-ng, diffutils
-
-## Testing
-
-- **Build test**: CI builds the image on every push to main/master
-- **Smoke tests**: Service health (httpd, mariadb), MariaDB functional (CREATE DATABASE, CREATE TABLE, INSERT, SELECT, DROP DATABASE), mod_fcgid loaded, Perl present, package integrity, inherited package verification
-- **Security scan**: Recommended (not yet implemented)
-
-## Quality Gates
-
-1. Build — CI builds the Containerfile successfully
-2. Test — smoke tests pass (services up, MariaDB CRUD cycle works, mod_fcgid loaded, packages verified)
-3. Push — image published only after tests pass
-4. Weekly rebuild — cron job picks up base image updates every Monday 4:45 AM UTC
+`tests/smoke-test.sh` asserts httpd and mariadb are active, runs a MariaDB CRUD cycle
+(CREATE DATABASE, CREATE TABLE, INSERT, SELECT, DROP DATABASE), and checks
+mod_fcgid, Perl and the inherited packages.
 
 ## Downstream Consumers
 
-Request Tracker (crunchtools/rt). Dispatches repository_dispatch to rt on push.
+Request Tracker (`crunchtools/rt`). Build dispatches `parent-image-updated`
+to rt on push. No downstream container images.
+
+## History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2026-03-10 | Initial constitution, tier 3c leaf |
+| 1.0.1 | 2026-09-25 | Gatehouse review, triage and pre-commit gates |
+| 1.1.0 | 2026-10-02 | Manifest under constitution v1.18.0: profile restatement removed, image specifics kept |
