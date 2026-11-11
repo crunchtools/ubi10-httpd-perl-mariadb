@@ -30,8 +30,12 @@ jobs:
       boot: systemd
       contract-test: tests/gate.sh
       cascade: true
+      # rt builds FROM this image; its old build.yml dispatched it, and the
+      # conversion (#30) dropped that edge. validate-cascade caught it.
+      downstream: rt
     secrets:
       QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
       QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
       RHSM_ACTIVATION_KEY: ${{ secrets.RHSM_ACTIVATION_KEY }}
       RHSM_ORG_ID: ${{ secrets.RHSM_ORG_ID }}
+      CRUNCHTOOLS_CI_APP_KEY: ${{ secrets.CRUNCHTOOLS_CI_APP_KEY }}
